@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>EcoSearch AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- React & Babel via CDN for Replit / simple hosting -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #020617;
+      --border: #1f2937;
+      --border-soft: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --muted-soft: #6b7280;
+      --accent: #22c55e;
+      --accent2: #22d3ee;
+      --badge: #0f172a;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 999px;
+      --transition-fast: 0.15s ease-out;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 45%);
+      color: var(--text);
+      font-family: var(--font-main);
+    }
+    #root { max-width: 1120px; margin: 0 auto; }
+
+    h1, h2, h3, h4 { margin: 0; }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .header-left {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .logo-pill {
+      height: 40px;
+      width: 40px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgb(52,211,153), rgb(34,211,238));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 1px rgba(15,23,42,0.8), 0 10px 30px rgba(15,23,42,0.7);
+      font-size: 18px;
+    }
+    .header-title { font-size: 22px; }
+    .header-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .header-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #334155;
+      color: var(--muted);
+      background: rgba(15,23,42,0.8);
+    }
+
+    /* Tabs */
+    .tabs-list {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 16px;
+      background: rgba(15,23,42,0.8);
+    }
+    .tab-trigger {
+      font-size: 13px;
+      padding: 8px 6px;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+    .tab-trigger-active {
+      background: radial-gradient(circle at top, rgba(34,197,94,0.12), rgba(15,23,42,0.9));
+      color: var(--text);
+    }
+
+    /* Layout columns */
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+    @media (max-width: 900px) {
+      .grid-two { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--panel);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 14px;
+      box-shadow: 0 16px 40px rgba(15,23,42,0.6);
+    }
+    .card-header {
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    textarea, select, input {
+      font-family: var(--font-main);
+      font-size: 13px;
+      color: var(--text);
+      background: #020617;
+      border-radius: var(--radius-md);
+      border: 1px solid #374151;
+      padding: 8px 10px;
+      outline: none;
+      width: 100%;
+    }
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+    }
+
+    .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #020617;
+      box-shadow: 0 8px 22px rgba(16,185,129,0.35);
+    }
+    .btn-primary:disabled {
+      background: #4b5563;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid #374151;
+    }
+    .btn-sm {
+      padding: 4px 10px;
+      font-size: 11px;
+    }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 35px rgba(15,23,42,0.6);
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--muted-soft);
+      margin-top: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: var(--radius-sm);
+      background: var(--badge);
+      border: 1px solid #1f2937;
+      padding: 2px 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    @media (max-width: 700px) {
+      .metrics-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    .metric-box {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 8px;
+      font-size: 12px;
+    }
+    .metric-label {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .metric-value {
+      margin-top: 3px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .metric-suffix {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: 4px;
+    }
+
+    .progress-outer {
+      height: 8px;
+      border-radius: 999px;
+      background: #020617;
+      overflow: hidden;
+    }
+    .progress-inner {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+      transition: width 0.4s ease-out;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .mono-block {
+      margin-top: 6px;
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #020617;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    .history-item {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 900px) {
+      .badge-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    .badge-card {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 10px;
+      font-size: 12px;
+    }
+    .badge-name {
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .badge-detail {
+      font-size: 11px;
+      color: var(--muted-soft);
+      margin-top: 4px;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 900px) {
+      .compare-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    .compare-panel {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    .delta-strip {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 10px;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .delta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    @media (max-width: 900px) {
+      .delta-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 900px) {
+      .settings-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .switch {
+      width: 30px;
+      height: 16px;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #374151;
+      position: relative;
+      cursor: pointer;
+    }
+    .switch-knob {
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: #9ca3af;
+      transition: transform var(--transition-fast), background var(--transition-fast);
+    }
+    .switch-on {
+      background: rgba(34,197,94,0.2);
+      border-color: #22c55e;
+    }
+    .switch-on .switch-knob {
+      transform: translateX(12px);
+      background: #22c55e;
+    }
+
+    .donut-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px 0;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+
+    // ------- Utils -------
+    function estimateTokens(prompt) {
+      const chars = prompt.trim().length;
+      const raw = Math.round(chars / 4);
+      return Math.max(10, raw);
+    }
+
+    function clamp(n, min = 0, max = 100) {
+      return Math.min(max, Math.max(min, n));
+    }
+
+    const BASE_LATENCY_SEC_PER_KTOK = 20;
+    const WH_PER_KTOK = 0.8;
+    const WORKING_HOURS_PER_DAY = 7;
+    const WORKING_DAYS_PER_YEAR = 220;
+
+    function synthesizeImprovements(prompt) {
+      const baseTokens = estimateTokens(prompt);
+
+      const vaguenessWords = ["vite", "bien", "génial", "optimise", "meilleur"];
+      let vaguenessPenalty = 0;
+      vaguenessWords.forEach((w) => {
+        if (prompt.toLowerCase().includes(w)) vaguenessPenalty += 0.04;
+      });
+
+      const missingStructurePenalty = /(liste|étapes|plan|format|json)/i.test(prompt) ? 0 : 0.12;
+      const missingAudiencePenalty = /(pour|destiné|ciblé|ciblée)/i.test(prompt) ? 0 : 0.08;
+      const missingConstraintsPenalty = /(mots|tokens|sections|limite)/i.test(prompt) ? 0 : 0.10;
+
+      const improvability = clamp(
+        (vaguenessPenalty + missingStructurePenalty + missingAudiencePenalty + missingConstraintsPenalty) * 100,
+        5,
+        75
+      );
+
+      const afterTokens = Math.round(baseTokens * (1 - improvability / 180));
+      const score = clamp(65 + improvability / 2, 60, 98);
+
+      const improved =
+        "Contexte: " + prompt.slice(0, 120) + "\\n\\n" +
+        "Tâche: Reformule précisément ce que tu attends de l'IA.\\n" +
+        "Contraintes:\\n" +
+        "- Longueur: ~" + Math.max(80, afterTokens * 4) + " caractères\\n" +
+        "- Format: JSON {title, steps[], risks[]}\\n" +
+        "- Style: clair, concis, actionnable\\n" +
+        "Vérification: ajoute une checklist finale des points couverts.\\n";
+
+      const energyBeforeWh = (baseTokens / 1000) * WH_PER_KTOK;
+      const energyAfterWh = (afterTokens / 1000) * WH_PER_KTOK;
+
+      const baseSec = (baseTokens / 1000) * BASE_LATENCY_SEC_PER_KTOK;
+      const latencyGainPct = clamp(improvability * 0.6, 5, 65);
+      const afterSec = baseSec * (1 - latencyGainPct / 100);
+      const timeSavedSec = Math.max(0, baseSec - afterSec);
+
+      const promptsPerDay = 10;
+      const hoursPerPrompt = timeSavedSec / 3600;
+      const hoursPerYear = hoursPerPrompt * promptsPerDay * WORKING_DAYS_PER_YEAR;
+      const fte = hoursPerYear / (WORKING_HOURS_PER_DAY * WORKING_DAYS_PER_YEAR);
+
+      return {
+        improvedPrompt: improved,
+        score,
+        tokenEstBefore: baseTokens,
+        tokenEstAfter: afterTokens,
+        energyBeforeWh,
+        energyAfterWh,
+        timeSavedSec,
+        latencyGainPct,
+        fte,
+      };
+    }
+
+    function formatDuration(seconds) {
+      const s = Math.round(seconds);
+      if (s < 60) return s + " s";
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      if (m < 60) return m + " min " + (r ? r + " s" : "");
+      const h = Math.floor(m / 60);
+      const rm = m % 60;
+      return h + " h " + (rm ? " " + rm + " min" : "");
+    }
+
+    // Energy donut (dashboard)
+    function EnergyDonut({ current, potential }) {
+      const size = 150;
+      const stroke = 14;
+      const radius = (size - stroke) / 2;
+      const circ = 2 * Math.PI * radius;
+      const center = size / 2;
+      const cur = clamp(isFinite(current) ? current : 0, 0, 100);
+      const pot = clamp(isFinite(potential) ? potential : 0, 0, 100);
+      const curLen = circ * (cur / 100);
+      const potLen = circ * (pot / 100);
+      return (
+        <div className="donut-wrapper">
+          <svg width={size} height={size} aria-label={"Score énergie global " + cur}>
+            <circle
+              cx={center} cy={center} r={radius}
+              stroke="#020617" strokeWidth={stroke} fill="none"
+            />
+            <circle
+              cx={center} cy={center} r={radius}
+              stroke={"rgba(34,197,94,0.35)"}
+              strokeWidth={stroke}
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray={potLen + " " + (circ - potLen)}
+              transform={"rotate(-90 " + center + " " + center + ")"}
+            />
+            <circle
+              cx={center} cy={center} r={radius}
+              stroke={"rgba(34,197,94,0.95)"}
+              strokeWidth={stroke}
+              fill="none"
+              strokeLinecap="round"
+              strokeDasharray={curLen + " " + (circ - curLen)}
+              transform={"rotate(-90 " + center + " " + center + ")"}
+            />
+          </svg>
+          <div style={{
+            position:"absolute",
+            textAlign:"center",
+            fontSize:"13px",
+            pointerEvents:"none"
+          }}>
+          </div>
+          <div style={{
+            position:"relative",
+            marginTop:"-110px",
+            textAlign:"center",
+            pointerEvents:"none"
+          }}>
+            <div style={{fontSize:"24px", fontWeight:700, color:"#22c55e"}}>{Math.round(cur)}</div>
+            <div style={{fontSize:"10px", textTransform:"uppercase", letterSpacing:"0.08em", color:"#9ca3af"}}>
+              Score énergie
+            </div>
+            <div style={{fontSize:"10px", marginTop:2, color:"#6b7280"}}>
+              Potentiel : {Math.round(pot)}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function MetricBox({ label, value, suffix }) {
+      return (
+        <div className="metric-box">
+          <div className="metric-label">{label}</div>
+          <div className="metric-value">
+            {value}
+            <span className="metric-suffix">{suffix}</span>
+          </div>
+        </div>
+      );
+    }
+
+    function HistoryItem({ before, after, saving }) {
+      return (
+        <div className="history-item">
+          <div style={{fontSize:"11px", color:"#9ca3af"}}>Avant</div>
+          <div style={{marginBottom:6}}>{before}</div>
+          <div style={{fontSize:"11px", color:"#9ca3af"}}>Après (résumé)</div>
+          <div>{after}</div>
+          <div style={{marginTop:4, fontSize:"11px", color:"#22c55e"}}>
+            Économie estimée : {saving}
+          </div>
+        </div>
+      );
+    }
+
+    function ComparePanel({ title, res }) {
+      if (!res) return null;
+      const beforeWh = res.energyBeforeWh;
+      const afterWh = res.energyAfterWh;
+      const secBefore = (res.tokenEstBefore / 1000) * BASE_LATENCY_SEC_PER_KTOK;
+      const secAfter = secBefore * (1 - res.latencyGainPct / 100);
+      return (
+        <div className="compare-panel">
+          <div style={{display:"flex", justifyContent:"space-between", marginBottom:4}}>
+            <div style={{fontWeight:600}}>{title}</div>
+            <span className="badge">Score {res.score}</span>
+          </div>
+          <div style={{display:"grid", gridTemplateColumns:"repeat(2,minmax(0,1fr))", gap:6, fontSize:12}}>
+            <div>Tokens : <b>{res.tokenEstBefore}</b> → <b>{res.tokenEstAfter}</b></div>
+            <div>Énergie : <b>{beforeWh.toFixed(3)} Wh</b> → <b>{afterWh.toFixed(3)} Wh</b></div>
+            <div>Latence : <b>{formatDuration(secBefore)}</b> → <b>{formatDuration(secAfter)}</b></div>
+          </div>
+        </div>
+      );
+    }
+
+    function DeltaStrip({ a, b }) {
+      if (!a || !b) return null;
+      const aWh = a.energyAfterWh;
+      const bWh = b.energyAfterWh;
+      const aTok = a.tokenEstAfter;
+      const bTok = b.tokenEstAfter;
+      const aSec = (a.tokenEstAfter / 1000) * BASE_LATENCY_SEC_PER_KTOK * (1 - a.latencyGainPct / 100);
+      const bSec = (b.tokenEstAfter / 1000) * BASE_LATENCY_SEC_PER_KTOK * (1 - b.latencyGainPct / 100);
+      const rel = (x, y) => (100 * (1 - y / Math.max(1e-6, x)));
+      return (
+        <div className="delta-strip">
+          <div style={{fontWeight:600, marginBottom:4}}>Comparatif (après optimisation)</div>
+          <div className="delta-grid">
+            <div style={{fontSize:12}}>
+              <div style={{fontSize:11, color:"#9ca3af"}}>Wh</div>
+              <div><b>{aWh.toFixed(3)}</b> vs <b>{bWh.toFixed(3)}</b></div>
+              <div style={{fontSize:11, color:"#22c55e"}}>{rel(aWh,bWh).toFixed(1)}% d'écart (B vs A)</div>
+            </div>
+            <div style={{fontSize:12}}>
+              <div style={{fontSize:11, color:"#9ca3af"}}>Tokens</div>
+              <div><b>{aTok}</b> vs <b>{bTok}</b></div>
+              <div style={{fontSize:11, color:"#22c55e"}}>{rel(aTok,bTok).toFixed(1)}% d'écart</div>
+            </div>
+            <div style={{fontSize:12}}>
+              <div style={{fontSize:11, color:"#9ca3af"}}>Secondes</div>
+              <div><b>{formatDuration(aSec)}</b> vs <b>{formatDuration(bSec)}</b></div>
+              <div style={{fontSize:11, color:"#22c55e"}}>{rel(aSec,bSec).toFixed(1)}% d'écart</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function Switch({ checked, onChange }) {
+      const cls = checked ? "switch switch-on" : "switch";
+      return (
+        <div className={cls} onClick={() => onChange(!checked)}>
+          <div className="switch-knob" />
+        </div>
+      );
+    }
+
+    // --------- App principal ----------
+    function App() {
+      const [activeTab, setActiveTab] = React.useState("analyzer");
+      const [prompt, setPrompt] = React.useState("");
+      const [res, setRes] = React.useState(null);
+      const [busy, setBusy] = React.useState(false);
+
+      // Compare
+      const [promptA, setPromptA] = React.useState("");
+      const [promptB, setPromptB] = React.useState("");
+      const [resA, setResA] = React.useState(null);
+      const [resB, setResB] = React.useState(null);
+
+      // Settings switches (purement visuels)
+      const [anon, setAnon] = React.useState(true);
+      const [funTips, setFunTips] = React.useState(true);
+      const [energyOn, setEnergyOn] = React.useState(true);
+
+      // Historique & dashboard
+      const [history, setHistory] = React.useState([]);
+
+      const handleAnalyze = () => {
+        if (!prompt.trim()) return;
+        setBusy(true);
+        setTimeout(() => {
+          const r = synthesizeImprovements(prompt);
+          setRes(r);
+          setHistory(prev => [...prev, {
+            id: Date.now() + Math.random(),
+            source: "analyzer",
+            prompt: prompt,
+            result: r
+          }]);
+          setBusy(false);
+        }, 500);
+      };
+
+      const ecoPct = React.useMemo(() => {
+        if (!res) return 0;
+        const b = res.energyBeforeWh;
+        const a = res.energyAfterWh;
+        if (b <= 0) return 0;
+        return clamp(((b - a) / b) * 100, 0, 90);
+      }, [res]);
+
+      const handleCompare = () => {
+        if (!promptA.trim() || !promptB.trim()) return;
+        const a = synthesizeImprovements(promptA);
+        const b = synthesizeImprovements(promptB);
+        setResA(a);
+        setResB(b);
+        setHistory(prev => [
+          ...prev,
+          { id: Date.now() + Math.random(), source: "compare-A", prompt: promptA, result: a },
+          { id: Date.now() + Math.random() + 1, source: "compare-B", prompt: promptB, result: b }
+        ]);
+      };
+
+      // Dashboard stats basés sur l'historique
+      const dashboardStats = React.useMemo(() => {
+        if (!history.length) {
+          return {
+            avgEnergyScore: 72,
+            potentialEnergyScore: 84,
+            avgTokenSavingPct: 36,
+            totalEnergySavedWh: 0.2,
+            totalTimeSavedMin: 4,
+            totalPrompts: 0,
+            totalTokensSaved: 600
+          };
+        }
+        let totalPrompts = 0;
+        let sumEnergyScore = 0;
+        let countEnergyScore = 0;
+        let totalEnergySavedWh = 0;
+        let totalTokensSaved = 0;
+        let sumTokenPct = 0;
+        let tokenPctCount = 0;
+        let totalTimeSavedSec = 0;
+
+        history.forEach(h => {
+          const r = h.result;
+          if (!r) return;
+          totalPrompts += 1;
+          if (r.energyBeforeWh > 0) {
+            const energyScore = clamp((1 - r.energyAfterWh / r.energyBeforeWh) * 100, 0, 100);
+            sumEnergyScore += energyScore;
+            countEnergyScore += 1;
+            totalEnergySavedWh += Math.max(0, r.energyBeforeWh - r.energyAfterWh);
+          }
+          if (r.tokenEstBefore > 0) {
+            const tokenPct = (r.tokenEstBefore - r.tokenEstAfter) / r.tokenEstBefore * 100;
+            sumTokenPct += tokenPct;
+            tokenPctCount += 1;
+            totalTokensSaved += Math.max(0, r.tokenEstBefore - r.tokenEstAfter);
+          }
+          totalTimeSavedSec += r.timeSavedSec || 0;
+        });
+
+        const avgEnergyScore = countEnergyScore ? (sumEnergyScore / countEnergyScore) : 72;
+        const avgTokenSavingPct = tokenPctCount ? (sumTokenPct / tokenPctCount) : 0;
+        const potentialEnergyScore = clamp(avgEnergyScore + 12, 0, 100);
+        const totalTimeSavedMin = totalTimeSavedSec / 60;
+
+        return {
+          avgEnergyScore,
+          potentialEnergyScore,
+          avgTokenSavingPct,
+          totalEnergySavedWh,
+          totalTimeSavedMin,
+          totalPrompts,
+          totalTokensSaved
+        };
+      }, [history]);
+
+      const {
+        avgEnergyScore,
+        potentialEnergyScore,
+        avgTokenSavingPct,
+        totalEnergySavedWh,
+        totalTimeSavedMin,
+        totalPrompts,
+        totalTokensSaved
+      } = dashboardStats;
+
+      // Badges calculés dynamiquement
+      const badges = React.useMemo(() => {
+        const b = [];
+
+        const ecoStarterProgress = Math.min(totalPrompts / 1 * 100, 100);
+        b.push({
+          name: "Eco-Starter",
+          desc: "1er prompt optimisé",
+          detail: totalPrompts
+            ? totalPrompts + " prompt(s) analysé(s) dans cette session."
+            : "Pas encore de prompt analysé.",
+          progress: ecoStarterProgress
+        });
+
+        const tokenGoal = 1000;
+        const tokenProgress = Math.min((totalTokensSaved / tokenGoal) * 100, 100);
+        b.push({
+          name: "Token-Saver",
+          desc: "1000 tokens évités",
+          detail: Math.round(totalTokensSaved) + " / " + tokenGoal + " tokens économisés (estimation).",
+          progress: tokenProgress
+        });
+
+        const timeGoalMin = 10;
+        const timeProgress = Math.min((totalTimeSavedMin / timeGoalMin) * 100, 100);
+        b.push({
+          name: "Time-Hero",
+          desc: "10 min gagnées",
+          detail: totalTimeSavedMin.toFixed(1) + " min estimées cumulées.",
+          progress: timeProgress
+        });
+
+        const whGoal = 0.5;
+        const whProgress = Math.min((totalEnergySavedWh / whGoal) * 100, 100);
+        b.push({
+          name: "Energy-Ninja",
+          desc: "0.5 Wh économisés",
+          detail: totalEnergySavedWh.toFixed(3) + " / " + whGoal + " Wh cumulées.",
+          progress: whProgress
+        });
+
+        const promptsGoal = 7;
+        const consProgress = Math.min(totalPrompts / promptsGoal * 100, 100);
+        b.push({
+          name: "Consistency-Pro",
+          desc: "7 prompts optimisés",
+          detail: totalPrompts + " / " + promptsGoal + " prompts analysés (approximation d'une habitude).",
+          progress: consProgress
+        });
+
+        return b;
+      }, [totalPrompts, totalTokensSaved, totalTimeSavedMin, totalEnergySavedWh]);
+
+      const lastHistoryItems = history.slice(-6).reverse();
+
+      return (
+        <div>
+          <header className="header">
+            <div className="header-left">
+              <div className="logo-pill">⚡</div>
+              <div>
+                <div className="header-title">EcoPrompt Optimizer – Prototype</div>
+                <div className="header-sub">
+                  Optimise tes prompts IA, mesure les tokens, les Wh et le temps gagné.
+                </div>
+              </div>
+            </div>
+            <span className="header-badge">Demo front • Aucune donnée envoyée</span>
+          </header>
+
+          <nav className="tabs-list">
+            {["analyzer","dashboard","compare","history","settings"].map((tab) => (
+              <button
+                key={tab}
+                className={
+                  "tab-trigger " +
+                  (activeTab === tab ? "tab-trigger-active" : "")
+                }
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab === "analyzer" && "Analyseur"}
+                {tab === "dashboard" && "Tableau de bord"}
+                {tab === "compare" && "Comparer"}
+                {tab === "history" && "Historique"}
+                {tab === "settings" && "Réglages"}
+              </button>
+            ))}
+          </nav>
+
+          {/* ANALYSEUR */}
+          {activeTab === "analyzer" && (
+            <div className="grid-two">
+              <section className="card">
+                <div className="card-header">
+                  <div className="card-title">Prompt à optimiser</div>
+                  <div className="card-sub">
+                    Colle un prompt tel que tu l&apos;enverrais à ChatGPT, Mistral, Perplexity...
+                  </div>
+                </div>
+                <div style={{marginBottom:8}}>
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Ex : Rédige moi vite un super plan marketing pour un produit innovant..."
+                  />
+                </div>
+                <div className="row">
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleAnalyze}
+                    disabled={!prompt.trim() || busy}
+                  >
+                    {busy ? "Analyse en cours..." : "Analyser le prompt"}
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => { setPrompt(""); setRes(null); }}
+                  >
+                    Effacer
+                  </button>
+                </div>
+                <div className="hint">
+                  ⚠️ Prototype : l&apos;optimisation et les calculs d&apos;énergie/temps sont des estimations pédagogiques.
+                </div>
+              </section>
+
+              <section className="card">
+                <div className="card-header">
+                  <div className="card-title">Résultats & gains</div>
+                </div>
+                {!res ? (
+                  <p style={{fontSize:13, color:"#9ca3af"}}>
+                    Lance une analyse pour voir la version optimisée de ton prompt, les tokens estimés et la consommation en Wh.
+                  </p>
+                ) : (
+                  <>
+                    <div style={{display:"flex", gap:10, flexWrap:"wrap", marginBottom:10}}>
+                      <div className="metric-box" style={{flex:"0 0 110px", textAlign:"center"}}>
+                        <div className="metric-label">Score de prompt</div>
+                        <div className="metric-value">{res.score} <span className="metric-suffix">/ 100</span></div>
+                      </div>
+                      <div style={{flex:"1 1 0"}}>
+                        <div className="pill">
+                          <span>Économie potentielle (énergie)</span>
+                          <span style={{color:"#22c55e", fontWeight:600}}>
+                            {ecoPct.toFixed(1)} %
+                          </span>
+                        </div>
+                        <div className="progress-outer" style={{marginTop:6}}>
+                          <div className="progress-inner" style={{width: ecoPct + "%"}} />
+                        </div>
+                        <div className="hint">
+                          Basé sur la réduction relative des tokens → Wh (modèle simplifié).
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="metrics-grid" style={{marginBottom:12}}>
+                      <MetricBox
+                        label="Tokens (avant)"
+                        value={res.tokenEstBefore.toLocaleString("fr-FR")}
+                        suffix="tok"
+                      />
+                      <MetricBox
+                        label="Tokens (après)"
+                        value={res.tokenEstAfter.toLocaleString("fr-FR")}
+                        suffix="tok"
+                      />
+                      <MetricBox
+                        label="Énergie (avant)"
+                        value={res.energyBeforeWh.toFixed(3)}
+                        suffix="Wh"
+                      />
+                      <MetricBox
+                        label="Énergie (après)"
+                        value={res.energyAfterWh.toFixed(3)}
+                        suffix="Wh"
+                      />
+                      <MetricBox
+                        label="Temps gagné / prompt"
+                        value={formatDuration(res.timeSavedSec)}
+                        suffix=""
+                      />
+                      <MetricBox
+                        label="Gain annuel (FTE)"
+                        value={(res.fte*100).toFixed(2)}
+                        suffix="%"
+                      />
+                    </div>
+
+                    <div>
+                      <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4}}>
+                        <span style={{fontSize:13, fontWeight:500}}>Prompt optimisé (brouillon)</span>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => navigator.clipboard.writeText(res.improvedPrompt)}
+                        >
+                          Copier
+                        </button>
+                      </div>
+                      <div className="mono-block">
+                        {res.improvedPrompt}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </section>
+            </div>
+          )}
+
+          {/* DASHBOARD */}
+          {activeTab === "dashboard" && (
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Tableau de bord</div>
+                <div className="card-sub">
+                  Vue globale basée sur les prompts que tu as optimisés dans cette session.
+                </div>
+              </div>
+              <div style={{display:"grid", gridTemplateColumns:"minmax(0,0.9fr) minmax(0,1.1fr)", gap:16}}>
+                <div style={{borderRight:"1px solid #111827", paddingRight:12}}>
+                  <EnergyDonut current={avgEnergyScore} potential={potentialEnergyScore} />
+                  <div className="hint" style={{textAlign:"center", marginTop:4}}>
+                    Basé sur {totalPrompts} prompt(s) analysé(s).
+                  </div>
+                </div>
+                <div style={{display:"grid", gridTemplateRows:"repeat(3,min-content)", gap:10, fontSize:13}}>
+                  <div className="pill">
+                    <span>Moyenne énergétique (score)</span>
+                    <span style={{fontWeight:600}}>{avgEnergyScore.toFixed(1)} / 100</span>
+                  </div>
+                  <div className="pill">
+                    <span>Potentiel atteignable (3 quêtes/jour)</span>
+                    <span style={{fontWeight:600}}>{potentialEnergyScore.toFixed(1)} / 100</span>
+                  </div>
+                  <div className="pill">
+                    <span>Tokens économisés (moyenne)</span>
+                    <span style={{fontWeight:600}}>{avgTokenSavingPct.toFixed(1)} %</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{marginTop:16}}>
+                <h3 style={{fontSize:14, marginBottom:6}}>Badges & progression</h3>
+                <div className="badge-grid">
+                  {badges.map((b) => (
+                    <div className="badge-card" key={b.name}>
+                      <div className="badge-name">{b.name}</div>
+                      <div className="badge-desc">{b.desc}</div>
+                      <div className="badge-detail">{b.detail}</div>
+                      <div className="progress-outer" style={{marginTop:6}}>
+                        <div className="progress-inner" style={{width: b.progress.toFixed(1) + "%"}} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* COMPARE */}
+          {activeTab === "compare" && (
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Comparer deux prompts</div>
+                <div className="card-sub">Colle ta version A et ta version B pour voir l&apos;impact sur tokens et énergie.</div>
+              </div>
+              <div className="grid-two" style={{gap:10}}>
+                <div>
+                  <div className="label">Prompt A</div>
+                  <textarea
+                    value={promptA}
+                    onChange={(e) => setPromptA(e.target.value)}
+                    placeholder="Colle ici le prompt A"
+                  />
+                </div>
+                <div>
+                  <div className="label">Prompt B</div>
+                  <textarea
+                    value={promptB}
+                    onChange={(e) => setPromptB(e.target.value)}
+                    placeholder="Colle ici le prompt B (version optimisée ?)"
+                  />
+                </div>
+              </div>
+              <div style={{marginTop:8}} className="row">
+                <button
+                  className="btn btn-primary"
+                  onClick={handleCompare}
+                  disabled={!promptA.trim() || !promptB.trim()}
+                >
+                  Analyser A vs B
+                </button>
+              </div>
+              {(resA || resB) && (
+                <>
+                  <div className="compare-grid" style={{marginTop:12}}>
+                    <ComparePanel title="Résultats A" res={resA} />
+                    <ComparePanel title="Résultats B" res={resB} />
+                  </div>
+                  <DeltaStrip a={resA} b={resB} />
+                </>
+              )}
+            </div>
+          )}
+
+          {/* HISTORY */}
+          {activeTab === "history" && (
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Historique</div>
+                <div className="card-sub">
+                  Derniers prompts analysés pendant cette session (max 6).
+                </div>
+              </div>
+              {!lastHistoryItems.length ? (
+                <p style={{fontSize:13, color:"#9ca3af"}}>
+                  Aucune analyse effectuée pour le moment. Lance une optimisation dans l&apos;onglet Analyseur ou une comparaison A/B.
+                </p>
+              ) : (
+                <div style={{display:"grid", gap:10}}>
+                  {lastHistoryItems.map((h) => {
+                    const r = h.result;
+                    const before = h.prompt.length > 80 ? h.prompt.slice(0, 77) + "..." : h.prompt;
+                    let afterPreview = r.improvedPrompt.replace(/\s+/g," ").trim();
+                    if (afterPreview.length > 80) afterPreview = afterPreview.slice(0,77) + "...";
+                    let saving = "";
+                    if (r.tokenEstBefore > 0) {
+                      const pct = (r.tokenEstBefore - r.tokenEstAfter) / r.tokenEstBefore * 100;
+                      saving = "~" + pct.toFixed(1) + " % de tokens";
+                    } else {
+                      saving = "Estimation non disponible";
+                    }
+                    return (
+                      <HistoryItem
+                        key={h.id}
+                        before={before}
+                        after={afterPreview}
+                        saving={saving}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SETTINGS */}
+          {activeTab === "settings" && (
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Réglages (illustratifs)</div>
+                <div className="card-sub">
+                  Ici, dans une vraie app, tu connecterais ton modèle local (llama.cpp, Mistral GGUF, etc.).
+                </div>
+              </div>
+              <div className="settings-grid" style={{fontSize:12}}>
+                <div>
+                  <div className="label">Chemin du modèle local</div>
+                  <input placeholder="/models/mistral-7b.Q4_K_M.gguf" />
+                </div>
+                <div>
+                  <div className="label">Quantization</div>
+                  <input placeholder="Q4_K_M" />
+                </div>
+                <div>
+                  <div className="label">Max tokens / requête</div>
+                  <input placeholder="1024" />
+                </div>
+                <div>
+                  <div className="label">Température</div>
+                  <input placeholder="0.7" />
+                </div>
+              </div>
+              <div style={{display:"grid", gridTemplateColumns:"repeat(3,minmax(0,1fr))", gap:8, marginTop:12}}>
+                <div className="switch-row">
+                  <Switch checked={anon} onChange={setAnon} />
+                  <span>Anonymiser les prompts (local uniquement)</span>
+                </div>
+                <div className="switch-row">
+                  <Switch checked={funTips} onChange={setFunTips} />
+                  <span>Activer les conseils ludiques</span>
+                </div>
+                <div className="switch-row">
+                  <Switch checked={energyOn} onChange={setEnergyOn} />
+                  <span>Afficher les estimations d&apos;énergie</span>
+                </div>
+              </div>
+              <div style={{marginTop:12}} className="row">
+                <button className="btn btn-primary btn-sm">Sauvegarder (mock)</button>
+                <button className="btn btn-secondary btn-sm">Réinitialiser</button>
+              </div>
+              <div className="hint">
+                Les valeurs saisies ici ne sont pas persistées : cette page sert uniquement à illustrer l&apos;intégration future.
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
